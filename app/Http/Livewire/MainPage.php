@@ -16,17 +16,24 @@ class MainPage extends Component
     public $imageFileEdit;
 
     public $width;
+    public $editWidth;
     public $height;
+    public $editHeight;
+    public $editSize;
+
     public $filters = [
         'width' => 0,
         'height' => 0,
         'aspect_ratio' => true
     ];
 
-    protected $rules = [
-        'filters.width' => 'required|min:1|numeric',
-        'filters.height' => 'required|min:1|numeric',
-    ];
+    protected function rules()
+    {
+        return [
+            'filters.width' => ['required', 'min:1', 'numeric', 'max:'.$this->width],
+            'filters.height' => ['required', 'min:1', 'numeric', 'max:'.$this->height],
+        ];
+    }
 
     public function render()
     {
@@ -47,19 +54,34 @@ class MainPage extends Component
         $tempImage = Image::make($this->imageFile);
         $this->imageFileEdit = $tempImage->encode('data-url')->getEncoded();
         $this->filters['width'] = $tempImage->getWidth();
+        $this->width = $tempImage->getWidth();
+        $this->editWidth = $tempImage->getWidth();
         $this->filters['height'] = $tempImage->getHeight();
+        $this->height = $tempImage->getHeight();
+        $this->editHeight = $tempImage->getHeight();
+        $this->editSize = '?';
+
     }
 
     public function updatedFilters()
     {
         $this->validate();
 
-        $this->imageFileEdit = Image::make($this->imageFile)
+        $tempImage = Image::make($this->imageFile)
         ->resize($this->filters['width'], $this->filters['height'], function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        })
+            if($this->filters['aspect_ratio']){
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            } else {
+                $constraint->upsize();
+            }
+        });
+        $this->editWidth = $tempImage->getWidth();
+        $this->editHeight = $tempImage->getHeight();
+        $this->imageFileEdit = $tempImage
         ->encode('data-url')
         ->getEncoded();
+        $this->editSize = intval(mb_strlen($this->imageFileEdit, '8bit')*0.75/1024);
+
     }
 }
