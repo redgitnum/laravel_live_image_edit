@@ -118,4 +118,17 @@ class MainPage extends Component
         $this->editSize = intval(mb_strlen($this->imageFileEdit, '8bit')*0.75/1024);
 
     }
+
+    public function downloadImage()
+    {
+        $image = Image::make($this->imageFileEdit)->encode('jpg');
+        $headers = [
+            'Content-Type' => 'image/jpeg',
+            'Content-Disposition' => 'attachment; filename=image.jpg',
+        ];
+
+        return response()->stream(function() use ($image) {
+            echo $image;
+        }, 200, $headers);
+    }
 }

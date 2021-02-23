@@ -122,12 +122,12 @@
                 {{-- EDIT PREVIEW --}}
                 <div class="p-4 flex-1 flex flex-col @if($imageFile)border border-gray-400 rounded @endif">
                     @if ($imageFileEdit)
-                    Edit Preview:
-                    <div class="flex flex-col justify-center items-center h-full">
-                        <img src="{{ $imageFileEdit }}">
-                    </div>
-                    <div class="text-center">{{ $editWidth.'x'.$editHeight.' px - ~'. $this->editSize .' KB' }}</div>
-
+                        Edit Preview:
+                        <div class="flex flex-col justify-center items-center h-full">
+                            <img src="{{ $imageFileEdit }}">
+                        </div>
+                        <div class="text-center">{{ $editWidth.'x'.$editHeight.' px - ~'. $this->editSize .' KB' }}</div>
+                        <button wire:click="downloadImage" class="p-2 bg-green-200 rounded shadow hover:bg-green-400 transition my-1">Download Image</button>
                     @endif
                 </div>
 
