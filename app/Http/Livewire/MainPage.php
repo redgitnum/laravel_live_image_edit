@@ -24,7 +24,19 @@ class MainPage extends Component
     public $filters = [
         'width' => 0,
         'height' => 0,
-        'aspect_ratio' => true
+        'aspect_ratio' => true,
+        'text' => '',
+        'textX' => 0,
+        'textY' => 0,
+        'textSize' => 48,
+        'textColor' => '#fdf6e3',
+        'imageR' => 0,
+        'imageG' => 0,
+        'imageB' => 0,
+        'imageContrast' => 0,
+        'imageBrightness' => 0,
+        'imageGamma' => 1,
+        'pixelate' => 0
     ];
 
     protected function rules()
@@ -68,6 +80,7 @@ class MainPage extends Component
         $this->validate();
 
         $tempImage = Image::make($this->imageFile)
+        //RESISING OPTIONS
         ->resize($this->filters['width'], $this->filters['height'], function ($constraint) {
             if($this->filters['aspect_ratio']){
                 $constraint->aspectRatio();
@@ -75,12 +88,33 @@ class MainPage extends Component
             } else {
                 $constraint->upsize();
             }
-        });
+        })
+        //TEXT MANIPULATION OPTIONS
+        ->text($this->filters['text'], $this->filters['textX'], $this->filters['textY'], function($font) {
+            $root = dirname(__DIR__,3);
+            $font->file($root.'/resources/fonts/arial.ttf');
+            $font->size($this->filters['textSize']);
+            $font->color($this->filters['textColor']);
+            $font->valign('top');
+        })
+        //COLORIZING IMAGE
+        ->colorize($this->filters['imageR'], $this->filters['imageG'], $this->filters['imageB'])
+        //IMAGE ADJUSTMENST
+        ->contrast($this->filters['imageContrast'])
+        ->gamma($this->filters['imageGamma'])
+        ->brightness($this->filters['imageBrightness'])
+        ->pixelate($this->filters['pixelate']);
+
+        //GET RESULT IMAGE DIMENSIONS
         $this->editWidth = $tempImage->getWidth();
         $this->editHeight = $tempImage->getHeight();
+
+        //MAKE ENCODED IMAGE FOR PREVIEW
         $this->imageFileEdit = $tempImage
         ->encode('data-url')
         ->getEncoded();
+
+        //GET RESULT APPROXIMATE FILESIZE
         $this->editSize = intval(mb_strlen($this->imageFileEdit, '8bit')*0.75/1024);
 
     }
